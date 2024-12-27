@@ -61,8 +61,8 @@ names(ct_cnty23) <- c("geoid", "geometry")
 
 From 2020 to 2023, Connecticut's county count increased from 8 to 9 and the definitions changed:
 
-```{r ct_cnty_chg, fig.height=4}
-par(mfrow = c(1, 2), xaxs = "i", yaxs = "i")
+```{r ct_cnty_chg}
+par(mfrow = c(1, 2))
 plot(ct_cnty20$geometry, main = "2020 CT counties")
 plot(ct_cnty23$geometry, main = "2023 CT counties")
 ```
