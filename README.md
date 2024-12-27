@@ -171,8 +171,8 @@ crosswalk and has the following columns
 
 ## Notes on `create_cw()` output:
 
-- When `to_geoid` is `NA` (missing), `from_geoid` is unallocated to any
-  `to_geoid`.
+- When `to_geoid` is `NA` (missing), `from_geoid` is not allocated to
+  any `to_geoid`.
 - When the weight variable in `NA`, `to_geoid` covers `from_geoid` and
   `afact` equals 1. In these cases, it’s best to get the weight variable
   from the original source shapefile.
