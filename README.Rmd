@@ -15,40 +15,69 @@ knitr::opts_chunk$set(
 
 # geolinkr
 
-<!-- badges: start -->
-<!-- badges: end -->
+geolinkr is an R package that creates crosswalks for empirical comparisons across geographies and over time using shapefiles. 
 
-The goal of geolinkr is to ...
+You can create a crosswalk across geographic delineations by providing three shapefiles to the `create_cw()` function:
+	- `from_sf`: A shapefile with the **source** geographies as an [sf object](https://github.com/r-spatial/sf?tab=readme-ov-file#simple-features-for-r) 
+	- `to_sf`: A shapefile with the **target** geographies as an sf object.
+	- `wts_sf`: A shapefile usually with census blocks or tracts delineations and a weighting variable, such as population or household counts, to allocate geographies from `from_sf` to `to_sf`. 
+
+See [Examples](#Examples)
+	
 
 ## Installation
 
-You can install the development version of geolinkr like so:
-
 ``` r
-# FILL THIS IN! HOW CAN PEOPLE INSTALL YOUR DEV PACKAGE?
+# install.packages("remotes")
+remotes::install_github("ChandlerLutz/geolinkr")
 ```
 
-## Example
+## Examples
 
-This is a basic example which shows you how to solve a common problem:
+In 2023, Connecticut updated its county definitions, creating a break in various economic datasets. We can use the `geolinkr::create_cw()` function to create a crosswalk from the Connecticut 2020 to the 2023 county definitions, using household counts at the tract level as weights:
 
-```{r example}
+```{r source}
 library(geolinkr)
-## basic example code
+library(sf)
+library(tigris)
+
+# 2020 CT counties -- source shapefile 
+ct_cnty20 <- tigris::counties(state = "CT", year = 2020) |>
+    st_transform(crs = 5070) |>
+    _[, c("GEOID", "geometry")]
+names(ct_cnty20) <- c("geoid", "geometry")
+
+plot(ct_cnty20$geometry)
 ```
 
-What is special about using `README.Rmd` instead of just `README.md`? You can include R chunks like so:
+```{r target}
+# 2023 CT counties -- target shapefile
+ct_cnty23 <- tigris::counties(state = "CT", year = 2023) |>
+  st_transform(crs = 5070) |>
+   _[, c("GEOID", "geometry")]
+names(ct_cnty23) <- c("geoid", "geometry")
 
-```{r cars}
-summary(cars)
+plot(ct_cnty23$geometry)
 ```
 
-You'll still need to render `README.Rmd` regularly, to keep `README.md` up-to-date. `devtools::build_readme()` is handy for this.
+```{r wts}
+# 2020 CT census tracts -- wts shapefile (with hh2020 as the weight variable)
+ct_tracts20 <- readRDS(url("https://github.com/ChandlerLutz/ct-shps/blob/main/ct_tracts20_sf.rds?raw=1")) |>
+  st_transform(crs = 5070) |>
+  _[, c("GEOID", "hh2020", "geometry")]
+names(ct_tracts20) <- c("geoid", "hh2020", "geometry")
 
-You can also embed plots, for example:
-
-```{r pressure, echo = FALSE}
-plot(pressure)
+print(ct_tracts20)
 ```
 
-In that case, don't forget to commit and push the resulting figure files, so they display on GitHub and CRAN.
+```{r create_cw}
+cw_ct_cnty20_cnty23 <- create_cw(
+  from_sf = ct_cnty20,
+  to_sf = ct_cnty23,
+  wts_sf = ct_tracts20,
+  wt_var_name = "hh2020",
+  check_that_wts_cover_from_and_to = FALSE
+)
+
+print(cw_ct_cnty20_cnty23)
+```
