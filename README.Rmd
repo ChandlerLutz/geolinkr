@@ -18,9 +18,10 @@ knitr::opts_chunk$set(
 geolinkr is an R package that creates crosswalks for empirical comparisons across geographies and over time using shapefiles. 
 
 You can create a crosswalk across geographic delineations by providing three shapefiles to the `create_cw()` function:
-	- `from_sf`: A shapefile with the **source** geographies as an [sf object](https://github.com/r-spatial/sf?tab=readme-ov-file#simple-features-for-r) 
-	- `to_sf`: A shapefile with the **target** geographies as an sf object.
-	- `wts_sf`: A shapefile usually with census blocks or tracts delineations and a weighting variable, such as population or household counts, to allocate geographies from `from_sf` to `to_sf`. 
+
+- `from_sf`: A shapefile with the **source** geographies as an [sf object](https://github.com/r-spatial/sf?tab=readme-ov-file#simple-features-for-r) 
+- `to_sf`: A shapefile with the **target** geographies as an sf object.
+- `wts_sf`: A shapefile usually with census blocks or tracts delineations and a weighting variable, such as population or household counts, to allocate geographies from `from_sf` to `to_sf`. 
 
 See [Examples](#Examples)
 	
@@ -36,28 +37,30 @@ remotes::install_github("ChandlerLutz/geolinkr")
 
 In 2023, Connecticut updated its county definitions, creating a break in various economic datasets. We can use the `geolinkr::create_cw()` function to create a crosswalk from the Connecticut 2020 to the 2023 county definitions, using household counts at the tract level as weights:
 
-```{r source}
+```{r dwnld}
 library(geolinkr)
 library(sf)
 library(tigris)
 
 # 2020 CT counties -- source shapefile 
 ct_cnty20 <- tigris::counties(state = "CT", year = 2020) |>
-    st_transform(crs = 5070) |>
-    _[, c("GEOID", "geometry")]
+  st_transform(crs = 5070) |>
+  _[, c("GEOID", "geometry")]
 names(ct_cnty20) <- c("geoid", "geometry")
 
-plot(ct_cnty20$geometry)
-```
-
-```{r target}
 # 2023 CT counties -- target shapefile
 ct_cnty23 <- tigris::counties(state = "CT", year = 2023) |>
   st_transform(crs = 5070) |>
-   _[, c("GEOID", "geometry")]
+  _[, c("GEOID", "geometry")]
 names(ct_cnty23) <- c("geoid", "geometry")
+```
 
-plot(ct_cnty23$geometry)
+From 2020 to 2023, Connecticut's county count increased from 8 to 9 and the delineations changed:
+
+```{r ct_cnty_chg}
+par(mfrow = c(1, 2))
+plot(ct_cnty20$geometry, main = "2020 CT counties")
+plot(ct_cnty23$geometry, main = "2023 CT counties")
 ```
 
 ```{r wts}
