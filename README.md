@@ -58,6 +58,9 @@ ct_cnty23 <- tigris::counties(state = "CT", year = 2023) |>
 names(ct_cnty23) <- c("geoid", "geometry")
 ```
 
+- The source and target `sf` objects must have 2 columns: `geoid` and
+  `geometry`.
+
 From 2020 to 2023, Connecticut’s county count increased from 8 to 9 and
 the definitions changed:
 
@@ -101,6 +104,9 @@ print(ct_tracts20)
 #> 10 09009361300   1624 MULTIPOLYGON (((1882822 229...
 ```
 
+- The wts sf object must have three columns: `geoid`, `geometry` and the
+  weighting variable (`hh2020` in this case).
+
 Finally, we’ll create the crosswalk using the `create_cw()` function.
 The output is the crosswalk from 2020 CT counties to 2023 CT counties.
 
@@ -139,3 +145,34 @@ print(cw_ct_cnty20_cnty23)
 #> 20:      09015    09180 9.663000e+03 1.948578e-01
 #>     from_geoid to_geoid       hh2020        afact
 ```
+
+The `create_cw()` returns a
+[data.table](https://github.com/Rdatatable/data.table) with the
+crosswalk and has the following columns
+
+- `from_geoid`: the source `geoid` (from the source shapefile).
+- `to_goeid`: the target `geoid` (from the target shapefile).
+- `hh2020`: The number of households (the weight) associated with the
+  intersection of `from_geoid` and `to_geoid` polygons.
+- `afact`: The allocation factor from `from_geoid` to `to_geoid` that
+  represents the share of `from_geoid` allocated to `to_geoid`. Note
+  that the sum of `afact` for each `from_geoid` is 1, meaning that 100%
+  of each `from_geoid` is allocated to a `to_geoid`.
+
+## Notes on `create_cw()` inputs:
+
+- When set to `TRUE`, the function parameter
+  `check_that_wts_cover_from_and_to`, checks that the `wts_sf` covers
+  `from_sf` and `to_sf`. If the union of `wts_sf` is equal to the union
+  of `from_sf` or `to_sf` up to a tolerance level, the `create_cw()` may
+  return an error.
+  - In these cases, set `check_that_wts_cover_from_and_to` to `FALSE` or
+    see [this solution](https://github.com/r-spatial/sf/issues/906).
+
+## Notes on `create_cw()` output:
+
+- When `to_geoid` is `NA` (missing), `from_geoid` is unallocated to any
+  `to_geoid`.
+- When the weight variable in `NA`, `to_geoid` covers `from_geoid` and
+  `afact` equals 1. In these cases, it’s best to get the weight variable
+  from the original source shapefile.
