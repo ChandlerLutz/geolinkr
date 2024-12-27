@@ -27,11 +27,12 @@ remotes::install_github("ChandlerLutz/geolinkr")
 
 ## Examples
 
-In 2023, Connecticut updated its county definitions, creating a break in
-various economic datasets. We can use the `geolinkr::create_cw()`
-function to create a crosswalk from the Connecticut 2020 to the 2023
-county definitions, using household counts at the tract level as
-weights.
+In 2022, Connecticut [updated its county
+definitions](https://www.federalregister.gov/documents/2022/06/06/2022-12063/change-to-county-equivalents-in-the-state-of-connecticut),
+creating a break in various economic datasets. We can use the
+`geolinkr::create_cw()` function to create a crosswalk from the
+Connecticut 2020 to the 2023 county definitions, using household counts
+at the tract level as weights.
 
 - Note: It’s typically best to use the smallest available delineations,
   such as Census blocks, for the weights, but we’ll use tracts to keep
