@@ -63,7 +63,7 @@ From 2020 to 2023, Connecticut’s county count increased from 8 to 9 and
 the definitions changed:
 
 ``` r
-par(mfrow = c(1, 2))
+par(mfrow = c(1, 2), xaxs = "i", yaxs = "i")
 plot(ct_cnty20$geometry, main = "2020 CT counties")
 plot(ct_cnty23$geometry, main = "2023 CT counties")
 ```
