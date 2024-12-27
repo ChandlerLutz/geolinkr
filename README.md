@@ -39,10 +39,7 @@ the 2023 CT county definitions (the target):
 ``` r
 library(geolinkr)
 library(sf)
-#> Linking to GEOS 3.11.0, GDAL 3.5.3, PROJ 9.1.0; sf_use_s2() is TRUE
 library(tigris)
-#> To enable caching of data, set `options(tigris_use_cache = TRUE)`
-#> in your R script or .Rprofile.
 
 # 2020 CT counties -- source shapefile 
 ct_cnty20 <- tigris::counties(state = "CT", year = 2020) |>

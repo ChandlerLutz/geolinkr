@@ -39,7 +39,7 @@ In 2023, Connecticut updated its county definitions, creating a break in various
 
 First, we can download the 2020 CT county definition (the source) and the 2023 CT county definitions (the target):
 
-```{r dwnld}
+```{r dwnld, warning=FALSE, message=FALSE}
 library(geolinkr)
 library(sf)
 library(tigris)
@@ -59,7 +59,7 @@ names(ct_cnty23) <- c("geoid", "geometry")
 
 From 2020 to 2023, Connecticut's county count increased from 8 to 9 and the delineations changed:
 
-```{r ct_cnty_chg, fig.height=3}
+```{r ct_cnty_chg, fig.height=2}
 par(mfrow = c(1, 2))
 plot(ct_cnty20$geometry, main = "2020 CT counties")
 plot(ct_cnty23$geometry, main = "2023 CT counties")
