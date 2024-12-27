@@ -48,13 +48,13 @@ library(tigris)
 
 # 2020 CT counties -- source shapefile 
 ct_cnty20 <- tigris::counties(state = "CT", year = 2020) |>
-  st_transform(crs = 5070) |>
+  sf::st_transform(crs = 5070) |>
   _[, c("GEOID", "geometry")]
 names(ct_cnty20) <- c("geoid", "geometry")
 
 # 2023 CT counties -- target shapefile
 ct_cnty23 <- tigris::counties(state = "CT", year = 2023) |>
-  st_transform(crs = 5070) |>
+  sf::st_transform(crs = 5070) |>
   _[, c("GEOID", "geometry")]
 names(ct_cnty23) <- c("geoid", "geometry")
 ```
@@ -72,7 +72,7 @@ We'll use the number of housing units in each census tract as weights. I have pr
 ```{r wts}
 # 2020 CT census tracts -- wts shapefile (with hh2020 as the weight variable)
 ct_tracts20 <- readRDS(url("https://github.com/ChandlerLutz/ct-shps/blob/main/ct_tracts20_sf.rds?raw=1")) |>
-  st_transform(crs = 5070) |>
+  sf::st_transform(crs = 5070) |>
   _[, c("GEOID", "hh2020", "geometry")]
 names(ct_tracts20) <- c("geoid", "hh2020", "geometry")
 
