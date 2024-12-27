@@ -31,7 +31,10 @@ In 2023, Connecticut updated its county definitions, creating a break in
 various economic datasets. We can use the `geolinkr::create_cw()`
 function to create a crosswalk from the Connecticut 2020 to the 2023
 county definitions, using household counts at the tract level as
-weights:
+weights.
+
+First, we can download the 2020 CT county definition (the source) and
+the 2023 CT county definitions (the target):
 
 ``` r
 library(geolinkr)
@@ -67,6 +70,11 @@ plot(ct_cnty23$geometry, main = "2023 CT counties")
 
 <img src="man/figures/README-ct_cnty_chg-1.png" width="100%" />
 
+We’ll use the number of housing units in each census tract as weights. I
+have prepared other tract, block group, and block shapefiles dating back
+to 2000 that you can use for weights
+[here](https://github.com/ChandlerLutz/census-blocks-tracks-shp).
+
 ``` r
 # 2020 CT census tracts -- wts shapefile (with hh2020 as the weight variable)
 ct_tracts20 <- readRDS(url("https://github.com/ChandlerLutz/ct-shps/blob/main/ct_tracts20_sf.rds?raw=1")) |>
@@ -93,6 +101,9 @@ print(ct_tracts20)
 #> 9  09009351100   1941 MULTIPOLYGON (((1882990 229...
 #> 10 09009361300   1624 MULTIPOLYGON (((1882822 229...
 ```
+
+Finally, we’ll create the crosswalk using the `create_cw()` function.
+The output is the crosswalk from 2020 CT counties to 2023 CT counties.
 
 ``` r
 cw_ct_cnty20_cnty23 <- create_cw(

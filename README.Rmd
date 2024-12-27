@@ -35,7 +35,9 @@ remotes::install_github("ChandlerLutz/geolinkr")
 
 ## Examples
 
-In 2023, Connecticut updated its county definitions, creating a break in various economic datasets. We can use the `geolinkr::create_cw()` function to create a crosswalk from the Connecticut 2020 to the 2023 county definitions, using household counts at the tract level as weights:
+In 2023, Connecticut updated its county definitions, creating a break in various economic datasets. We can use the `geolinkr::create_cw()` function to create a crosswalk from the Connecticut 2020 to the 2023 county definitions, using household counts at the tract level as weights.
+
+First, we can download the 2020 CT county definition (the source) and the 2023 CT county definitions (the target):
 
 ```{r dwnld}
 library(geolinkr)
@@ -57,11 +59,13 @@ names(ct_cnty23) <- c("geoid", "geometry")
 
 From 2020 to 2023, Connecticut's county count increased from 8 to 9 and the delineations changed:
 
-```{r ct_cnty_chg}
+```{r ct_cnty_chg, fig.height=4}
 par(mfrow = c(1, 2))
 plot(ct_cnty20$geometry, main = "2020 CT counties")
 plot(ct_cnty23$geometry, main = "2023 CT counties")
 ```
+
+We'll use the number of housing units in each census tract as weights. I have prepared other tract, block group, and block shapefiles dating back to 2000 that you can use for weights [here](https://github.com/ChandlerLutz/census-blocks-tracks-shp).
 
 ```{r wts}
 # 2020 CT census tracts -- wts shapefile (with hh2020 as the weight variable)
@@ -72,6 +76,8 @@ names(ct_tracts20) <- c("geoid", "hh2020", "geometry")
 
 print(ct_tracts20)
 ```
+
+Finally, we'll create the crosswalk using the `create_cw()` function. The output is the crosswalk from 2020 CT counties to 2023 CT counties.
 
 ```{r create_cw}
 cw_ct_cnty20_cnty23 <- create_cw(
