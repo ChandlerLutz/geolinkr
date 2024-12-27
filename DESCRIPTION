@@ -1,0 +1,27 @@
+Package: geolinkr
+Title: Geographically links shape files to create crosswalks
+Version: 0.0.0.9000
+Authors@R: 
+    person("Chandler", "Lutz", , "chandler.lutz@gmail.com", role = c("aut", "cre"),
+           comment = c(ORCID = "YOUR-ORCID-ID"))
+Description: What the package does (one paragraph).
+License: MIT + file LICENSE
+Encoding: UTF-8
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.3.2
+Suggests: 
+    ggplot2,
+    here,
+    testthat (>= 3.0.0),
+    tidycensus,
+    tigris
+Config/testthat/edition: 3
+Config/testthat/parallel: true
+Config/testthat/start-first: test-create_cw
+Depends: 
+    R (>= 4.4)
+LazyData: true
+Imports: 
+    data.table (>= 1.16.0),
+    magrittr,
+    sf (>= 1.0.17)
