@@ -6,8 +6,8 @@
 geolinkr is an R package that creates crosswalks for empirical
 comparisons across geographies and over time using shapefiles.
 
-You can create a crosswalk across geographic delineations by providing
-three shapefiles to the `create_cw()` function:
+You can create a crosswalk by providing three shapefiles to the
+`create_cw()` function:
 
 - `from_sf`: A shapefile with the **source** geographies as an [sf
   object](https://github.com/r-spatial/sf?tab=readme-ov-file#simple-features-for-r)
@@ -30,11 +30,14 @@ remotes::install_github("ChandlerLutz/geolinkr")
 In 2023, Connecticut updated its county definitions, creating a break in
 various economic datasets. We can use the `geolinkr::create_cw()`
 function to create a crosswalk from the Connecticut 2020 to the 2023
-county definitions, using household counts at the tract level as
-weights.
+county definitions, using household counts at the tract level as weights
 
-First, we can download the 2020 CT county definition (the source) and
-the 2023 CT county definitions (the target):
+- Note: It’s typically best to use the smallest available delineations,
+  such as Census blocks, for the weights, but we’ll use tracts to keep
+  the example tractable.
+
+First, download the 2020 CT county delineations (the source) and the
+2023 CT county delineations (the target):
 
 ``` r
 library(geolinkr)
@@ -57,7 +60,7 @@ names(ct_cnty23) <- c("geoid", "geometry")
 ```
 
 From 2020 to 2023, Connecticut’s county count increased from 8 to 9 and
-the delineations changed:
+the definitions changed:
 
 ``` r
 par(mfrow = c(1, 2))
