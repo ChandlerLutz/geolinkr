@@ -174,6 +174,6 @@ crosswalk and has the following columns
 
 - When `to_geoid` is `NA` (missing), `from_geoid` is not allocated to
   any `to_geoid`.
-- When the weight variable in `NA`, `to_geoid` covers `from_geoid` and
+- When the weight variable is `NA`, `to_geoid` covers `from_geoid` and
   `afact` equals 1. In these cases, it’s best to get the weight variable
   from the original source shapefile.

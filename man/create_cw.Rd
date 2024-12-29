@@ -2,7 +2,7 @@
 % Please edit documentation in R/create_cw.R
 \name{create_cw}
 \alias{create_cw}
-\title{Create Crosswalk between Two Sets of Spatial Features}
+\title{Create a Crosswalk between Two Sets of Spatial Features (shapefiles)}
 \usage{
 create_cw(
   from_sf,
@@ -27,11 +27,11 @@ have columns named "geoid" and "geometry" with geometry of class
 have columns named "geoid" and "geometry" with geometry of class
 'sfc_MULTIPOLYGON'. It must have a column used for weighting. The
 name for this weighting column must be passed to
-\code{wt_var_name}. For area-based weighting, use the area of the
-features in \code{wts_sf}.}
+\code{wt_var_name}. For area-based weighting, use a constant (e.g., \code{1}) as
+the weighting variable for all polygons in \code{wts_sf}.}
 
 \item{wt_var_name}{A character string specifying the name of the
-column in \code{wts_sf} to be used for weighting.}
+column in \code{wts_sf} to be used for weighting (required).}
 
 \item{check_that_wts_cover_from_and_to}{A logical value indicating
 whether to check that \code{wts_sf} completely covers both \code{from_sf} and
@@ -44,7 +44,7 @@ and handle Alaska specifically (default is TRUE).}
 and handle Hawaii specifically (default is TRUE).}
 }
 \value{
-A data.table containing the crosswalk between \code{from_sf} and \code{to_sf}.
+A data.table with the crosswalk between \code{from_sf} and \code{to_sf}.
 }
 \description{
 This function generates a crosswalk between two sets of spatial features
@@ -63,7 +63,7 @@ columns for consistency.
 \item \strong{Alaska and Hawaii Handling:} If \code{check_for_ak} or \code{check_for_hi} is
 TRUE, the function identifies and transforms the coordinate reference
 systems (CRS) of Alaska and Hawaii polygons for accurate calculations.
-\item \strong{Crosswalk Computation:}
+\item \strong{Crosswalk Computation: (via \code{create_cw_worker()})}:
 \itemize{
 \item Identifies 1:1 mappings where \code{to_sf} completely covers \code{from_sf}.
 \item For the remaining \code{from_sf} polygons, it finds the \code{wts_sf} polygons
@@ -80,17 +80,44 @@ following columns:
 \item \code{to_geoid}: The "geoid" from \code{to_sf}.
 \item \code{wt_var_name}: The weight variable from \code{wts_sf} (renamed from
 \code{wt_var_name}).
-\item \code{afact}: The allocation factor representing the share of the \code{wt_var}
-that connects \code{from_geoid} to \code{to_geoid}.
+\item \code{afact}: The allocation factor from \code{from_geoid} to \code{to_geoid} that
+represents the share of \code{from_geoid} allocated to \code{to_geoid}. Note
+that the sum of \code{afact} for each \code{from_geoid} is 1, meaning that 100\%
+of each \code{from_geoid} is allocated to a \code{to_geoid}.
 }
 }
 }
 \examples{
 \dontrun{
-# Assuming you have sf objects named from_sf, to_sf, and wts_sf
-# with a weight variable named "population" in wts_sf
+library(geolinkr)
+library(sf)
+library(tigris)
 
-cw <- create_cw(from_sf, to_sf, wts_sf, "population")
+ct_cnty20 <- tigris::counties(state = "CT", year = 2020) |>
+  sf::st_transform(crs = 5070) |>
+ _[, c("GEOID", "geometry")]
+names(ct_cnty20) <- c("geoid", "geometry")
+
+# 2023 CT counties -- target shapefile
+ct_cnty23 <- tigris::counties(state = "CT", year = 2023) |>
+  sf::st_transform(crs = 5070) |>
+ _[, c("GEOID", "geometry")]
+names(ct_cnty23) <- c("geoid", "geometry")
+
+# 2020 CT census tracts -- wts shapefile (with hh2020 as the weight variable)
+ct_tracts20 <- readRDS(url("https://github.com/ChandlerLutz/ct-shps/blob/main/ct_tracts20_sf.rds?raw=1")) |>
+ sf::st_transform(crs = 5070) |>
+ _[, c("GEOID", "hh2020", "geometry")]
+names(ct_tracts20) <- c("geoid", "hh2020", "geometry")
+
+cw_ct_cnty20_cnty23 <- create_cw(
+ from_sf = ct_cnty20,
+ to_sf = ct_cnty23,
+ wts_sf = ct_tracts20,
+ wt_var_name = "hh2020",
+ check_that_wts_cover_from_and_to = FALSE
+)
+
 }
 
 }

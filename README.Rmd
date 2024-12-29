@@ -108,11 +108,12 @@ The `create_cw()` returns a [data.table](https://github.com/Rdatatable/data.tabl
 
 - When set to `TRUE`, the function parameter `check_that_wts_cover_from_and_to`, checks that the `wts_sf` covers `from_sf` and `to_sf`. If the union of `wts_sf` is equal to the union of `from_sf` or `to_sf` up to a tolerance level, the `create_cw()` may return an error. 
   - In these cases, set `check_that_wts_cover_from_and_to` to `FALSE` or see [this solution](https://github.com/r-spatial/sf/issues/906).
+- For area-based weighting, use a constant (e.g., `1`) as the weighting variable for all polygons  in `wts_sf`.
 
 ## Notes on `create_cw()` output:
 
 - When `to_geoid` is `NA` (missing), `from_geoid` is not allocated to any `to_geoid`. 
-- When the weight variable in `NA`, `to_geoid` covers `from_geoid` and `afact` equals 1. In these cases, it's best to get the weight variable from the original source shapefile. 
+- When the weight variable is `NA`, `to_geoid` covers `from_geoid` and `afact` equals 1. In these cases, it's best to get the weight variable from the original source shapefile. 
 
 
 

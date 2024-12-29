@@ -6,13 +6,13 @@
 \title{Connecticut County Visual Crosswalk (2020 - 2022)}
 \format{
 A data frame with 18 rows and 2 variables:
-\describe{
-\item{cntyfp2020}{County FIPS code for 2020. \code{<chr>}}
-\item{cntyfp2022}{County FIPS code for 2022. \code{<chr>}}
+\itemize{
+\item \code{cntyfp2020}: County FIPS code for 2020.
+\item \code{cntyfp2022}: County FIPS code for 2022
 }
 }
 \source{
-This dataset is for illustrative purposes only and does not represent actual changes in Connecticut county FIPS codes.
+Chandler Lutz. This dataset is for illustrative purposes only and does not represent actual changes in Connecticut county FIPS codes.
 }
 \usage{
 ct_visual_cw_2020_2022

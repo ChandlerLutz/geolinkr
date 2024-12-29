@@ -36,12 +36,10 @@
 #' A dataset providing a visual crosswalk for Connecticut counties between 2020 and 2022.
 #'
 #' @format A data frame with 18 rows and 2 variables:
-#' \describe{
-#'   \item{cntyfp2020}{County FIPS code for 2020. \code{<chr>}}
-#'   \item{cntyfp2022}{County FIPS code for 2022. \code{<chr>}}
-#' }
+#' - `cntyfp2020`: County FIPS code for 2020.
+#' - `cntyfp2022`: County FIPS code for 2022
 #'
-#' @source This dataset is for illustrative purposes only and does not represent actual changes in Connecticut county FIPS codes.
+#' @source Chandler Lutz. This dataset is for illustrative purposes only and does not represent actual changes in Connecticut county FIPS codes.
 #'
 #' @examples
 #' data(ct_visual_cw_2020_2022)

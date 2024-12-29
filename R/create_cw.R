@@ -1,5 +1,5 @@
 
-#' Create Crosswalk between Two Sets of Spatial Features
+#' Create a Crosswalk between Two Sets of Spatial Features (shapefiles)
 #'
 #' This function generates a crosswalk between two sets of spatial features 
 #' (`from_sf` and `to_sf`) using a third set of spatial features (`wts_sf`) 
@@ -17,13 +17,13 @@
 #'   have columns named "geoid" and "geometry" with geometry of class
 #'   'sfc_MULTIPOLYGON'. It must have a column used for weighting. The
 #'   name for this weighting column must be passed to
-#'   `wt_var_name`. For area-based weighting, use the area of the
-#'   features in `wts_sf`.
+#'   `wt_var_name`. For area-based weighting, use a constant (e.g., `1`) as 
+#'   the weighting variable for all polygons in `wts_sf`.
 #' @param check_that_wts_cover_from_and_to A logical value indicating
 #'  whether to check that `wts_sf` completely covers both `from_sf` and
 #'  `to_sf` (default is TRUE).
 #' @param wt_var_name A character string specifying the name of the
-#'   column in `wts_sf` to be used for weighting.
+#'   column in `wts_sf` to be used for weighting (required).
 #' @param check_for_ak A logical value indicating whether to check for
 #'   and handle Alaska specifically (default is TRUE).
 #' @param check_for_hi A logical value indicating whether to check for
@@ -38,7 +38,7 @@
 #' 3. **Alaska and Hawaii Handling:** If `check_for_ak` or `check_for_hi` is 
 #'    TRUE, the function identifies and transforms the coordinate reference 
 #'    systems (CRS) of Alaska and Hawaii polygons for accurate calculations.
-#' 4. **Crosswalk Computation:** 
+#' 4. **Crosswalk Computation: (via `create_cw_worker()`)**:
 #'    * Identifies 1:1 mappings where `to_sf` completely covers `from_sf`.
 #'    * For the remaining `from_sf` polygons, it finds the `wts_sf` polygons 
 #'      covered by both `from_sf` and `to_sf`.
@@ -52,17 +52,44 @@
 #'    * `to_geoid`: The "geoid" from `to_sf`.
 #'    * `wt_var_name`: The weight variable from `wts_sf` (renamed from 
 #'       `wt_var_name`).
-#'    * `afact`: The allocation factor representing the share of the `wt_var` 
-#'       that connects `from_geoid` to `to_geoid`.
+#'    * `afact`: The allocation factor from `from_geoid` to `to_geoid` that
+#'       represents the share of `from_geoid` allocated to `to_geoid`. Note
+#'       that the sum of `afact` for each `from_geoid` is 1, meaning that 100%
+#'       of each `from_geoid` is allocated to a `to_geoid`. 
 #'
-#' @return A data.table containing the crosswalk between `from_sf` and `to_sf`.
+#' @return A data.table with the crosswalk between `from_sf` and `to_sf`.
 #'
 #' @examples
 #' \dontrun{
-#' # Assuming you have sf objects named from_sf, to_sf, and wts_sf
-#' # with a weight variable named "population" in wts_sf
+#' library(geolinkr)
+#' library(sf)
+#' library(tigris)
 #' 
-#' cw <- create_cw(from_sf, to_sf, wts_sf, "population")
+#' ct_cnty20 <- tigris::counties(state = "CT", year = 2020) |>
+#'   sf::st_transform(crs = 5070) |>
+#'  _[, c("GEOID", "geometry")]
+#' names(ct_cnty20) <- c("geoid", "geometry")
+#'
+#' # 2023 CT counties -- target shapefile
+#' ct_cnty23 <- tigris::counties(state = "CT", year = 2023) |>
+#'   sf::st_transform(crs = 5070) |>
+#'  _[, c("GEOID", "geometry")]
+#' names(ct_cnty23) <- c("geoid", "geometry")
+#'
+#' # 2020 CT census tracts -- wts shapefile (with hh2020 as the weight variable)
+#' ct_tracts20 <- readRDS(url("https://github.com/ChandlerLutz/ct-shps/blob/main/ct_tracts20_sf.rds?raw=1")) |>
+#'  sf::st_transform(crs = 5070) |>
+#'  _[, c("GEOID", "hh2020", "geometry")]
+#' names(ct_tracts20) <- c("geoid", "hh2020", "geometry")
+#'
+#' cw_ct_cnty20_cnty23 <- create_cw(
+#'  from_sf = ct_cnty20,
+#'  to_sf = ct_cnty23,
+#'  wts_sf = ct_tracts20,
+#'  wt_var_name = "hh2020",
+#'  check_that_wts_cover_from_and_to = FALSE
+#' )
+#' 
 #' }
 #'
 #' @import data.table

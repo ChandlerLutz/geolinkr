@@ -24,18 +24,15 @@
 #' @import data.table
 #' @export
 polygon_intersects_with_us_state <- function(geometry) {
-
-  # For NSE notes in R CMD check
-  . <- NULL
-
+  
   if ("sfc_MULTIPOLYGON" %notin% class(geometry)) {
     stop("The input must have a column named 'geometry' of class 'sfc_MULTIPOLYGON'")
   }
 
   geometry <- sf::st_transform(geometry, crs = 5070)
   dt_sf <- sf::st_as_sf(geometry) |> 
-    as.data.table() %>%
-    .[, rowid := .I]
+    as.data.table() |> 
+    _[, rowid := .I]
 
   us_states_sf <- geolinkr::us_states_sf |> 
     sf::st_transform(crs = 5070) 

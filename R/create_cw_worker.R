@@ -2,8 +2,7 @@
 #'
 #' This function is a worker function used to create a crosswalk between two sets of 
 #' polygons (`dt_from` and `dt_to`) using a third set of polygons (`dt_wts`) for 
-#' weighting. It handles different intersection scenarios and calculates weights based on 
-#' the areas of intersection.
+#' weighting. 
 #'
 #' @param dt_from A data.table containing the "from" polygons with columns:
 #'   - `from_geoid`: Character vector representing the unique IDs of the "from" polygons.

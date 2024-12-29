@@ -30,6 +30,7 @@ The function checks that \code{dt_from} and \code{dt_to} are valid \code{data.ta
 For each spatial predicate in \code{funs}, if multiple geometries in \code{dt_from} correspond to a single geometry in \code{dt_to}, the function will stop with an error. Only unique matches (one-to-one) are accepted.
 }
 \examples{
+\dontrun{
 library(tigris); library(sf); library(data.table); library(magrittr)
 
 options(tigris_use_cache = TRUE)
@@ -65,4 +66,5 @@ stopifnot(nrow(cw) == nrow(ct_cnty22_sf))
 stopifnot(sort(cw$from_geoid) == sort(ct_cnty22_sf$geoid))
 stopifnot(cw[, unique(to_geoid)] == "09")
 stopifnot(cw[, sum(afact)] == nrow(ct_cnty22_sf))
+}
 }
