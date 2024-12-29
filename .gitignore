@@ -6,4 +6,4 @@
 .quarto
 *~
 .DS_Store
-tests/testthat/test-data/external-testdata
+tests/testthat/external-testdata/
