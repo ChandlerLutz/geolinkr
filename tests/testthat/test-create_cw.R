@@ -168,6 +168,37 @@ test_that("create_cw() works with `check_that_wts_cover_from_and_to == TRUE` and
     
 })
 
+test_that("create_cw() works with `check_that_wts_cover_from_and_to == TRUE` and `wts_check_buffer_frac = 0.001` when wts_sf equal to `from_sf` and `to_sf`", {
+
+  from_sf <- st_sf(
+    geoid = sprintf("geoid%02.f", 1:8), 
+    geometry = gen_nonoverlapping_square_polygons(
+      num_squares = 8, side_length = 1, squares_per_row = 4, crs = 5070
+    )
+  )
+
+  to_sf <- from_sf
+  
+  wts_sf <- from_sf |>
+    as.data.table() |>
+    _[, wt_col := 1] |>
+    st_as_sf()
+
+  expect_true(st_equals(st_union(from_sf), st_union(to_sf), sparse = FALSE)[1, 1])
+  
+  result <- create_cw(from_sf = from_sf, to_sf = to_sf, wts_sf = wts_sf,
+                      wt_var_name = "wt_col",
+                      check_that_wts_cover_from_and_to = TRUE,
+                      wts_check_buffer_frac = 0.001)
+
+  expect_equal(result$from_geoid, from_sf$geoid)
+  expect_equal(result$to_geoid, to_sf$geoid)
+  expect_true(result[, all(afact == 1)])
+
+
+})
+
+
 test_that("create_cw() returns the expected results from create_worker() for a basic case", {
   
   from_sf <- st_sf(

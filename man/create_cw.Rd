@@ -10,6 +10,7 @@ create_cw(
   wts_sf,
   wt_var_name,
   check_that_wts_cover_from_and_to = TRUE,
+  wts_check_buffer_frac = 0.001,
   check_for_ak = TRUE,
   check_for_hi = TRUE
 )
@@ -27,15 +28,19 @@ have columns named "geoid" and "geometry" with geometry of class
 have columns named "geoid" and "geometry" with geometry of class
 'sfc_MULTIPOLYGON'. It must have a column used for weighting. The
 name for this weighting column must be passed to
-\code{wt_var_name}. For area-based weighting, use a constant (e.g., \code{1}) as
-the weighting variable for all polygons in \code{wts_sf}.}
+\code{wt_var_name}. For area-based weighting, use a constant (e.g.,
+\code{1}) as the weighting variable for all polygons in \code{wts_sf}.}
 
 \item{wt_var_name}{A character string specifying the name of the
 column in \code{wts_sf} to be used for weighting (required).}
 
 \item{check_that_wts_cover_from_and_to}{A logical value indicating
-whether to check that \code{wts_sf} completely covers both \code{from_sf} and
-\code{to_sf} (default is TRUE).}
+whether to check that \code{wts_sf} completely covers both \code{from_sf}
+and \code{to_sf} (default is TRUE).}
+
+\item{wts_check_buffer_frac}{A numeric value indicating how much to
+buffer the weights shapefile when checking that it covers the
+from and to shapefiles. Default is 0.001, or 0.1\%}
 
 \item{check_for_ak}{A logical value indicating whether to check for
 and handle Alaska specifically (default is TRUE).}

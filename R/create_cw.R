@@ -17,11 +17,14 @@
 #'   have columns named "geoid" and "geometry" with geometry of class
 #'   'sfc_MULTIPOLYGON'. It must have a column used for weighting. The
 #'   name for this weighting column must be passed to
-#'   `wt_var_name`. For area-based weighting, use a constant (e.g., `1`) as 
-#'   the weighting variable for all polygons in `wts_sf`.
+#'   `wt_var_name`. For area-based weighting, use a constant (e.g.,
+#'   `1`) as the weighting variable for all polygons in `wts_sf`.
 #' @param check_that_wts_cover_from_and_to A logical value indicating
-#'  whether to check that `wts_sf` completely covers both `from_sf` and
-#'  `to_sf` (default is TRUE).
+#'   whether to check that `wts_sf` completely covers both `from_sf`
+#'   and `to_sf` (default is TRUE).
+#' @param wts_check_buffer_frac A numeric value indicating how much to
+#'   buffer the weights shapefile when checking that it covers the
+#'   from and to shapefiles. Default is 0.001, or 0.1%
 #' @param wt_var_name A character string specifying the name of the
 #'   column in `wts_sf` to be used for weighting (required).
 #' @param check_for_ak A logical value indicating whether to check for
@@ -95,7 +98,8 @@
 #' @import data.table
 #' @export
 create_cw <- function(from_sf, to_sf, wts_sf, wt_var_name,
-                      check_that_wts_cover_from_and_to = TRUE, 
+                      check_that_wts_cover_from_and_to = TRUE,
+                      wts_check_buffer_frac = 0.001,
                       check_for_ak = TRUE, check_for_hi = TRUE) {
 
   # For R CMD check
@@ -156,7 +160,11 @@ create_cw <- function(from_sf, to_sf, wts_sf, wt_var_name,
     to_union <- sf::st_union(to_sf)
     wts_union <- sf::st_union(wts_sf)
 
-    if (!sf::st_covered_by(from_union, wts_union, sparse = FALSE)[1, 1]) {
+    if (!sf::st_covered_by(
+      from_union,
+      st_buffer_frac(wts_union, buffer_frac = wts_check_buffer_frac),
+      sparse = FALSE)[1, 1]
+    ) {
       stop_custom(
         .subclass = "wts_not_covering_from_error",
         message = "In create_cw(), `wts_sf` does not cover `from_sf`"
