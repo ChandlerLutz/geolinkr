@@ -164,11 +164,18 @@ crosswalk and has the following columns
 
 - When set to `TRUE`, the function parameter
   `check_that_wts_cover_from_and_to`, checks that the `wts_sf` covers
-  `from_sf` and `to_sf`. If the union of `wts_sf` is equal to the union
-  of `from_sf` or `to_sf` up to a tolerance level, the `create_cw()` may
-  return an error.
-  - In these cases, set `check_that_wts_cover_from_and_to` to `FALSE` or
-    see [this solution](https://github.com/r-spatial/sf/issues/906).
+  `from_sf` and `to_sf`. The `wts_check_buffer_frac` parameter in
+  `create_cw()`, with a default value of `0.001` adds a 1 percent land
+  area buffer to `wts_sf` when checking if `wts_sf` covers `from_sf` and
+  `to_sf`.
+  - If `create_cw()` returns an error indicating that `wts_sf` does not
+    cover `from_sf` or `to_sf`, you can increase the parameter in
+    `wts_check_buffer_frac` in `create_cw()` from its default value of
+    `0.001`, set `check_that_wts_cover_from_and_to` to `FALSE` so
+    `creat_cw()` does not perform this check, or see [this
+    solution](https://github.com/r-spatial/sf/issues/906).
+- For area-based weighting, use a constant (e.g., `1`) as the weighting
+  variable for all polygons in `wts_sf`.
 
 ## Notes on `create_cw()` output:
 
