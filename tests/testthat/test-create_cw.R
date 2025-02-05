@@ -5,6 +5,42 @@ options(tigris_use_cache = TRUE)
 if (!is_checking() || !is_testing())
   source(here::here("tests/testthat/helpers.R"))
 
+test_that("create_cw() requires the weight variable to be numeric", {
+  
+  from_sf <- st_sf(
+    geoid = c("a", "b", "c"),
+    geometry = gen_nonoverlapping_square_polygons(
+      num_squares = 3, side_length = 2, squares_per_row = 1,
+      crs = 5070
+    )
+  )
+  to_sf <- st_sf(
+    geoid = c("d", "e", "f"),
+    geometry = gen_nonoverlapping_square_polygons(
+      num_squares = 3, side_length = 2, squares_per_row = 1,
+      crs = 5070
+    )
+  )
+  wts_sf <- st_sf(
+    geoid = c("w1", "w2", "w3"),
+    wt_col = c("1", "2", "3"),
+    geometry = gen_nonoverlapping_square_polygons(
+      num_squares = 3, side_length = 2, squares_per_row = 1,
+      crs = 5070
+    )
+  )
+  
+  expect_error(create_cw(from_sf, to_sf, wts_sf, "wt_col"))
+
+  wts_sf$wt_col <- as.numeric(wts_sf$wt_col)
+
+  expect_equal(create_cw(from_sf, to_sf, wts_sf, "wt_col")$afact, rep(1, 3))
+
+})
+
+
+
+
 test_that("create_cw() requires each sf object to be of type sf", {
 
   from_sf <- st_sf(

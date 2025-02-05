@@ -134,6 +134,9 @@ create_cw <- function(from_sf, to_sf, wts_sf, wt_var_name,
   dt_wts <- as.data.table(wts_sf) |> 
     setnames(wt_var_name, "wt_var")
 
+  if (dt_wts[, !is.numeric(wt_var)]) 
+    stop("The `wt_var` column in `wts_sf` as specified by `wt_var_name` must be numeric")
+
   if ("geometry" %notin% names(dt_from))
     stop("The `from_sf` input must have a column named 'geometry'")
   if ("geometry" %notin% names(dt_to))
