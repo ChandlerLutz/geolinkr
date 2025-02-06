@@ -1,3 +1,5 @@
+## Test geolinkr vs Missouri Geocorr
+
 library(sf); library(data.table); library(tigris); library(tidycensus); library(ggplot2);
 
 options(tigris_use_cache = TRUE)
