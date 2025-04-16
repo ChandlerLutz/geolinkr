@@ -31,8 +31,7 @@
 #'   - `wt_var`: Numeric vector representing the weight variable.
 #'   - `afact`: Numeric vector representing the area factor (normalized weights).
 #'
-#' @keywords internal
-#' @noRd 
+#' @export
 create_cw_worker <- function(dt_from, dt_to, dt_wts) {
 
   . <- from_geoid <- to_geoid <- wts_geoid <- wt_var <- geometry <- NULL

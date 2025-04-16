@@ -2,6 +2,7 @@
 
 export("%>%")
 export(create_cw)
+export(create_cw_worker)
 export(gen_nonoverlapping_square_polygons)
 export(get_one_to_one_cw)
 export(polygon_intersects_with_us_state)
