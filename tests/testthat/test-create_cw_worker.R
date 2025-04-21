@@ -1117,3 +1117,17 @@ test_that("create_cw_worker() has similar weights to Missouri geocorr for 2020 C
                 
 })
 
+test_that("create_cw_worker() works with a tract to zip example", {
+
+  dt_from <- readRDS(
+    ex_test_data_path("tract_to_zip_example_trctG23000909666_shp.rds")
+  )
+  dt_to <- readRDS(ex_test_data_path("tract_to_zip_example_zip04683_shp.rds"))
+  dt_wts <- readRDS(ex_test_data_path("tract_to_zip_example_dt_wts.rds"))
+
+  result <- create_cw_worker(dt_from, dt_to, dt_wts)
+
+  expect_true("data.table" %chin% class(result))
+
+  
+})

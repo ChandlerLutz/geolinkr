@@ -318,3 +318,210 @@ test_that("st_intersection_to_multipolygon() handles an intersection that leads 
   
 })
 
+test_that("st_intersection_to_multipolygon() handles an intersection that leads to a single polygon object", {
+
+  polygon_x <- sf::st_polygon(list(matrix(c(0, 0, 0, 5, 5, 5, 5, 0, 0, 0),
+                                      ncol = 2, byrow = TRUE)))
+  st_x <- sf::st_sf(id_x = 1, geometry = st_sfc(polygon_x)) |>
+    sf::st_set_agr("constant")
+  
+  polygon_y <- sf::st_polygon(list(matrix(c(2, 2, 2, 7, 7, 7, 7, 2, 2, 2),
+                                      ncol = 2, byrow = TRUE)))
+  st_y <- sf::st_sf(id_y = 2, geometry = st_sfc(polygon_y)) |>
+    sf::st_set_agr("constant")
+
+  result_intersection <- st_intersection(st_x, st_y)
+
+  expect_true(
+    sf::st_geometry_type(result_intersection) |> as.character() == "POLYGON"
+  )
+
+  result_intersection <- result_intersection |>
+    st_cast(to = "MULTIPOLYGON")
+
+  expect_true(
+    sf::st_geometry_type(result_intersection) |> as.character() == "MULTIPOLYGON"
+  )
+
+  result <- st_intersection_to_multipolygon(as.data.table(st_x), as.data.table(st_y))
+
+  expect_equal(nrow(result), 1)
+  expect_true(
+    sf::st_geometry_type(result$geometry) |> as.character() == "MULTIPOLYGON"
+  )
+  expect_equal(result$geometry, result_intersection$geometry)
+
+})
+
+
+test_that("st_intersection_to_multipolygon() handles intersection leading to multiple POLYGON rows", {
+
+  polygon_x1 <- sf::st_polygon(list(matrix(c(0,0, 0,2, 2,2, 2,0, 0,0),
+                                           ncol = 2, byrow = TRUE)))
+  polygon_x2 <- sf::st_polygon(list(matrix(c(3,3, 3,5, 5,5, 5,3, 3,3),
+                                           ncol = 2, byrow = TRUE)))
+  
+  # Create an sf object with two rows for x
+  st_x <- sf::st_sf(id_x = 1:2, 
+                   geometry = st_sfc(polygon_x1, polygon_x2)) |>
+    sf::st_set_agr("constant")
+  
+  # Define one polygon for y that overlaps both polygons in x
+  polygon_y <- sf::st_polygon(list(matrix(c(-1,-1, -1,6, 6,6, 6,-1, -1,-1),
+                                          ncol = 2, byrow = TRUE)))
+  
+  # Create an sf object with one row for y
+  st_y <- sf::st_sf(id_y = 10, 
+                   geometry = st_sfc(polygon_y)) |>
+    sf::st_set_agr("constant")
+
+  result_intersection <- sf::st_intersection(st_x, st_y)
+
+  expect_equal(nrow(result_intersection), 2, 
+               info = "Intersection should produce two rows.")
+  
+  expect_true(all(sf::st_geometry_type(result_intersection) == "POLYGON"))
+
+  result_intersection <- result_intersection |>
+    sf::st_cast(to = "MULTIPOLYGON")
+  
+  result <- st_intersection_to_multipolygon(as.data.table(st_x), as.data.table(st_y))
+    
+  expect_true(all(sf::st_geometry_type(result$geometry) == "MULTIPOLYGON"))
+  expect_equal(nrow(result), 2)
+  expect_true(
+    sf::st_geometry_type(result$geometry) |> as.character() |> unique() == "MULTIPOLYGON"
+  )
+  expect_equal(result$geometry, result_intersection$geometry)
+
+})
+
+test_that("st_intersection_to_multipolygon() handles intersection yielding mixed POLYGON/MULTIPOLYGON rows", {
+
+  # --- Define Input Geometries ---
+  # Define parts for the multipolygon (will be id_x = 1)
+  x1_part1 <- list(matrix(c(0,0, 0,1, 1,1, 1,0, 0,0), ncol = 2, byrow = TRUE))
+  x1_part2 <- list(matrix(c(1.5,0, 1.5,1, 2.5,1, 2.5,0, 1.5,0), ncol = 2, byrow = TRUE))
+  # Create the multipolygon
+  mp1 <- sf::st_multipolygon(list(x1_part1, x1_part2))
+
+  # Define a simple polygon (will be id_x = 2)
+  p2 <- sf::st_polygon(list(matrix(c(3,3, 3,5, 5,5, 5,3, 3,3),
+                                   ncol = 2, byrow = TRUE)))
+  
+  # Create an sf object for x with one MULTIPOLYGON row and one POLYGON row
+  st_x <- sf::st_sf(id_x = 1:2, 
+                   geometry = st_sfc(mp1, p2)) |> # Order matters: mp1 first, p2 second
+    sf::st_set_agr("constant")
+  
+  # Define one polygon for y that overlaps both geometries in x entirely
+  polygon_y <- sf::st_polygon(list(matrix(c(-1,-1, -1,6, 6,6, 6,-1, -1,-1),
+                                          ncol = 2, byrow = TRUE)))
+  
+  st_y <- sf::st_sf(id_y = 10, 
+                   geometry = st_sfc(polygon_y)) |>
+    sf::st_set_agr("constant")
+
+  # --- Perform Intersection ---
+  # Intersection should yield two rows:
+  # Row 1 (from mp1): MULTIPOLYGON (identical to mp1)
+  # Row 2 (from p2): POLYGON (identical to p2)
+  result_intersection <- sf::st_intersection(st_x, st_y)
+
+  expect_equal(nrow(result_intersection), 2)
+
+  # *** Key Check: Verify the direct result has mixed types ***
+  result_types <- sf::st_geometry_type(result_intersection)
+  expect_equal(as.character(result_types[1]), "MULTIPOLYGON")
+  expect_equal(as.character(result_types[2]), "POLYGON")
+
+  result_intersection <- result_intersection |>
+    sf::st_cast(to = "MULTIPOLYGON")
+
+  # Call the function under test
+  result <- st_intersection_to_multipolygon(as.data.table(st_x), as.data.table(st_y))
+
+  expect_true(all(sf::st_geometry_type(result$geometry) == "MULTIPOLYGON"))
+  expect_equal(nrow(result), 2)
+  expect_true(
+    sf::st_geometry_type(result$geometry) |> as.character() |> unique() == "MULTIPOLYGON"
+  )
+  expect_equal(result$geometry, result_intersection$geometry)
+
+   
+})
+
+
+test_that("st_intersection_to_multipolygon() handles intersection yielding MULTIPOLYGON rows directly", {
+
+  # --- Define Input Geometries ---
+  # Define parts for the first multipolygon
+  x1_part1 <- list(matrix(c(0,0, 0,1, 1,1, 1,0, 0,0), ncol = 2, byrow = TRUE))
+  x1_part2 <- list(matrix(c(1.5,0, 1.5,1, 2.5,1, 2.5,0, 1.5,0), ncol = 2, byrow = TRUE))
+  # Create the first multipolygon
+  mp1 <- sf::st_multipolygon(list(x1_part1, x1_part2))
+
+  # Define parts for the second multipolygon
+  x2_part1 <- list(matrix(c(3,3, 3,4, 4,4, 4,3, 3,3), ncol = 2, byrow = TRUE))
+  x2_part2 <- list(matrix(c(4.5,3, 4.5,4, 5.5,4, 5.5,3, 4.5,3), ncol = 2, byrow = TRUE))
+  # Create the second multipolygon
+  mp2 <- sf::st_multipolygon(list(x2_part1, x2_part2))
+  
+  st_x <- sf::st_sf(id_x = 1:2, 
+                    geometry = st_sfc(mp1, mp2)) |>
+    sf::st_set_agr("constant")
+  
+  # Define one polygon for y that overlaps both multipolygons in x entirely
+  polygon_y <- sf::st_polygon(list(matrix(c(-1,-1, -1,6, 6,6, 6,-1, -1,-1),
+                                          ncol = 2, byrow = TRUE)))
+  
+  # Create an sf object with one row for y
+  st_y <- sf::st_sf(id_y = 10, 
+                   geometry = st_sfc(polygon_y)) |>
+    sf::st_set_agr("constant")
+
+  result_intersection <- sf::st_intersection(st_x, st_y)
+
+  expect_equal(nrow(result_intersection), 2, 
+               info = "Intersection should produce two rows.")
+  
+  expect_true(all(sf::st_geometry_type(result_intersection) == "MULTIPOLYGON"))
+  
+
+  dt_x <- as.data.table(st_x)
+  dt_y <- as.data.table(st_y)
+
+  # Call the function under test
+  result <- st_intersection_to_multipolygon(as.data.table(st_x), as.data.table(st_y))
+
+  expect_true(all(sf::st_geometry_type(result$geometry) == "MULTIPOLYGON"))
+  expect_equal(nrow(result), 2)
+  expect_true(
+    sf::st_geometry_type(result$geometry) |> as.character() |> unique() == "MULTIPOLYGON"
+  )
+  expect_equal(result$geometry, result_intersection$geometry)
+
+
+
+})
+
+
+test_that("st_intersection_to_multipolygon() works for a real example that results in a single polygon intersection", {
+  
+  dt_x <- readRDS(
+    ex_test_data_path("st_intersection_to_multipolygon_ex_trct_to_zip_dt_x.rds")
+  )
+  
+  dt_y <- readRDS(
+    ex_test_data_path("st_intersection_to_multipolygon_ex_trct_to_zip_dt_y.rds")
+  )
+  
+  result_intersection <- st_intersection(dt_x$geometry, dt_y$geometry) |>
+    st_cast(to = "MULTIPOLYGON")
+  
+  result <- st_intersection_to_multipolygon(dt_x, dt_y)
+  
+  expect_equal(nrow(result), 1)
+  expect_equal(result$geometry, result_intersection)
+  
+})

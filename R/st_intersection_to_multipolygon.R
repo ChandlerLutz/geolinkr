@@ -56,6 +56,19 @@ st_intersection_to_multipolygon <- function(dt_x, dt_y) {
   dt_intersection <- sf::st_intersection(st_x, st_y) |> 
     as.data.table()
 
+  geom_types <- sf::st_geometry_type(dt_intersection$geometry) |> as.character() |>
+    unique()
+
+  if (all(geom_types %chin% c("POLYGON", "MULTIPOLYGON"))) {
+    dt_intersection <- dt_intersection |>
+      sf::st_as_sf() |>
+      sf::st_cast(to = "MULTIPOLYGON") |>
+      as.data.table()
+    return(dt_intersection)
+  }
+
+  dt_intersection_typs <- sf::st_geometry_type(dt_intersection$geometry)
+
   if (nrow(dt_intersection) == 0) 
     return(dt_intersection)
 
