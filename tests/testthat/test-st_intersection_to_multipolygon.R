@@ -525,3 +525,25 @@ test_that("st_intersection_to_multipolygon() works for a real example that resul
   expect_equal(result$geometry, result_intersection)
   
 })
+
+test_that("st_intersection_to_multipolygon() works for a real example that results in a single polygon intersection", {
+  
+  dt_x <- readRDS(
+    ex_test_data_path("trct_to_zip_ex_dt_x_for_zip_19108.rds")
+  )
+  
+  dt_y <- readRDS(
+    ex_test_data_path("trct_to_zip_ex_dt_y_for_zip_19108.rds")
+  )
+  
+  result <- st_intersection_to_multipolygon(dt_x, dt_y)
+  
+  expect_equal(nrow(result), 1)
+  expect_true(sf::st_geometry_type(result$geometry) == "MULTIPOLYGON")
+  expect_no_error(sf::st_area(result$geometry))
+  
+})
+
+
+
+

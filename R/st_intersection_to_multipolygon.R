@@ -67,8 +67,6 @@ st_intersection_to_multipolygon <- function(dt_x, dt_y) {
     return(dt_intersection)
   }
 
-  dt_intersection_typs <- sf::st_geometry_type(dt_intersection$geometry)
-
   if (nrow(dt_intersection) == 0) 
     return(dt_intersection)
 
@@ -76,6 +74,18 @@ st_intersection_to_multipolygon <- function(dt_x, dt_y) {
     _[, geom_type := sf::st_geometry_type(geometry)] |>
     _[, geom_type := as.character(geom_type)] |> 
     _[geom_type %notin% c("POINT", "MULTIPOINT", "LINESTRING", "MULTILINESTRING")]
+
+  geom_types <- sf::st_geometry_type(dt_intersection$geometry) |> as.character() |>
+    unique()
+
+  if (all(geom_types %chin% c("POLYGON", "MULTIPOLYGON"))) {
+    dt_intersection <- dt_intersection |>
+      sf::st_as_sf() |>
+      sf::st_cast(to = "MULTIPOLYGON") |>
+      as.data.table() |>
+      _[, geom_type := NULL]
+    return(dt_intersection)
+  }
 
   ## Handle cases where the intersection results in a geomcollection with no
   ## polygons
