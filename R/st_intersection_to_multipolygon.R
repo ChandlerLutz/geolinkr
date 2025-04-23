@@ -116,9 +116,14 @@ st_intersection_to_multipolygon <- function(dt_x, dt_y) {
       _[geom_type == "POLYGON",
         geometry := lapply(geometry, sf::st_cast, to = "MULTIPOLYGON")] |>
       _[!sapply(geometry, sf::st_is_empty)] |>
-      _[, geometry := lapply(geometry, sf::st_sfc, crs = orig_crs)] |>
-      ## Combine the list of sfc objects into a single sfc
-      _[, geometry := do.call(what = "c", args = geometry)]
+      _[, geometry := lapply(geometry, sf::st_sfc, crs = orig_crs)]
+
+    if (nrow(dt_intersection) > 1) {
+      dt_intersection <- dt_intersection |>
+        ## Combine the list of sfc objects into a single sfc
+        _[, geometry := do.call(what = "c", args = geometry)]
+    }
+
 
   } else {
     stop("Unexpected error occurred in st_intersection_to_multipolygon()")

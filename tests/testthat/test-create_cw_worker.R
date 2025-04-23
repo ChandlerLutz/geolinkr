@@ -1144,3 +1144,17 @@ test_that("create_cw_worker() works with a tract to zip example for zip 19108", 
   
   
 })
+
+test_that("create_cw_worker() works with a tract to zip example for zip 61402", {
+
+  dt_from <- readRDS(ex_test_data_path("trct_to_zip_ex_dt_from_for_zip_61402.rds"))
+  dt_to <- readRDS(ex_test_data_path("trct_to_zip_ex_dt_to_for_zip_61402.rds"))
+  dt_wts <- readRDS(ex_test_data_path("trct_to_zip_ex_dt_wts_for_zip_61402.rds"))
+
+  result <- create_cw_worker(dt_from, dt_to, dt_wts)
+
+  expect_true("data.table" %chin% class(result))
+  
+  
+})
+

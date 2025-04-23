@@ -544,6 +544,37 @@ test_that("st_intersection_to_multipolygon() works for a real example that resul
   
 })
 
+test_that("st_intersection_to_multipolygon() works for a real example where the intersection results in a polygon and a geomcollection, but the geomcollection is empty after removing linestrings, etc.", {
+  
+  dt_x <- readRDS(
+    ex_test_data_path("trct_to_zip_ex_dt_x_for_zip_61402.rds")
+  )
+  
+  dt_y <- readRDS(
+    ex_test_data_path("trct_to_zip_ex_dt_y_for_zip_61402.rds")
+  )
+
+  res_intersection <- st_intersection(dt_x$geometry, dt_y$geometry)
+  expect_true(length(res_intersection) == 2)
+  expect_true(
+    "GEOMETRYCOLLECTION" %chin% as.character(sf::st_geometry_type(res_intersection))
+  )
+  res_intersection_geom_collection <- res_intersection[2, "geometry"][[1]]
+  res_intersection_geom_collection_types <- sapply(
+    res_intersection_geom_collection, sf::st_geometry_type
+  ) |> as.character() |> unique()
+
+  expect_true(
+    all(res_intersection_geom_collection_types %chin% c("LINESTRING", "POINT"))
+  )
+  
+  result <- st_intersection_to_multipolygon(dt_x, dt_y)
+  expect_equal(nrow(result), 1)
+  expect_true(sf::st_geometry_type(result$geometry) == "MULTIPOLYGON")
+  expect_no_error(sf::st_area(result$geometry))
+  
+})
+
 
 
 

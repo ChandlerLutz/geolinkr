@@ -1,6 +1,6 @@
 Package: geolinkr
 Title: Geographically links shape files to create crosswalks
-Version: 0.0.5
+Version: 0.0.6
 Authors@R: 
     person("Chandler", "Lutz", , "chandler.lutz@charlotte.edu", role = c("aut", "cre"))
 Description: Create crosswalks across geographies and over time using shapefiles.
